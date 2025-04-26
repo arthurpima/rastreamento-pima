@@ -18,3 +18,26 @@
     console.warn('%c[PIMA Tracking]', 'color: #f77f00; font-weight: bold;', 'Erro ao tentar gerar event_id:', e);
   }
 })();
+
+try {
+  const eventId = localStorage.getItem('event_id');
+  if (eventId) {
+    fetch('/cart.js')
+      .then(res => res.json())
+      .then(cart => {
+        const attrs = cart.attributes || {};
+        if (attrs.event_id === eventId) return;
+
+        return fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attributes: { ...attrs, event_id: eventId } })
+        });
+      })
+      .then(() => {
+        console.log('[PIMA Tracking] event_id enviado ao cart!');
+      });
+  }
+} catch (e) {
+  console.warn('[PIMA Tracking] Erro ao enviar event_id ao cart:', e);
+}
